@@ -24,48 +24,40 @@
 (defvar scan-mode-hook nil "Hook run after `scan-mode`.")
 (add-to-list 'auto-mode-alist '("\\-output.txt\\'" . scan-mode))
 
-
-(defvar scan-mode-high
-  '("Downgrade attack prevention NOT supported"
-    "NOT ok"
-    "Signature Algorithm          SHA1 with RSA"
-    "TLS 1.2             not offered"
-    "VULNERABLE"
+(defvar scan-mode-high-regexp
+  (concat "Downgrade attack prevention NOT supported" "\\|"
+    "NOT ok" "\\|"
+    "Signature Algorithm[[:space:]]+SHA1 with RSA" "\\|"
+    "TLS 1.2[[:space:]]+not offered" "\\|"
+    "VULNERABLE" "\\|"
+    "OSVDB\\-[[:digit:]]+"
     )
-  "Strings that match HIGH alerts.")
+  "Regular expressions that match HIGH alerts.")
 
-(defvar scan-mode-medium
-  '("DEBUG HTTP verb may show server debugging information."
-    "Server leaks inodes via ETags"
-    "The anti-clickjacking X-Frame-Options header is not present."
-    "The site uses SSL and the Strict-Transport-Security HTTP header is not defined."
-    "The X-Content-Type-Options header is not set."
-    "The X-XSS-Protection header is not defined."
+(defvar scan-mode-medium-regexp
+  (concat "DEBUG HTTP verb may show server debugging information." "\\|"
+    "Server leaks inodes via ETags" "\\|"
+    "The anti-clickjacking X-Frame-Options header is not present." "\\|"
+    "The site uses SSL and the Strict-Transport-Security HTTP header is not defined." "\\|"
+    "The X-Content-Type-Options header is not set." "\\|"
+    "The X-XSS-Protection header is not defined." "\\|"
+    "[[:digit:]]+\\/tcp[[:blank:]]+open"
     )
-  "Strings that match MEDIUM alerts.")
+  "Regular expressions that match MEDIUM alerts.")
 
-(defvar scan-mode-information
-  '("on .*"
-    "does not match certificate's names: .*"
-    "Cookie [a-z]+ created without the [a-z]+ flag"
-    "Target IP:.* "
-    "Target Hostname:.*"
-    "Target Port:.* "
-    "Root page / redirects to: .*")
-  "Informational items.")
-
-(defvar scan-mode-high-regexp (concatenate 'string (regexp-opt scan-mode-high 'words) "\\|OSVDB\\-[[:digit:]]+")
-  "Regular expression that matches HIGH alerts.")
-
-(defvar scan-mode-medium-regexp (concatenate 'string (regexp-opt scan-mode-medium) "\\|[[:digit:]]+\\/tcp[[:blank:]]+open")
-    "Regular expression that matches MEDIUM alerts.")
-
-(defvar scan-mode-information-regexp (regexp-opt scan-mode-information "\(?:"))
+(defvar scan-mode-information-regexp
+  (concat "does not match certificate's names: [[:alpha:]]+" "\\|"
+    "Cookie \\([[:alpha:]]+\\) created without the \\([[:alpha:]]+\\) flag" "\\|"
+    "Target IP: \\([[:digit:]]+\\)" "\\|"
+    "Target Hostname: \\([[:alpha:]]+\\)" "\\|"
+    "Target Port:.\\([[:digit:]]+" "\\|"
+    "Root page / redirects to: \\(.*\\)")
+  "Regular expressions that match Informational items.")
 
 (defvar scan-mode-keywords
   `((,scan-mode-high-regexp . font-lock-warning-face)
     (,scan-mode-medium-regexp . font-lock-type-face)
-    (,scan-mode-information-regexp . font-lock-comment-face)
+    (,scan-mode-information-regexp 1 font-lock-comment-face)
     ))
 
 (define-derived-mode scan-mode fundamental-mode "scan"
